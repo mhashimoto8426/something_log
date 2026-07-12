@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.staticfiles import StaticFiles
 
 app = FastAPI()
@@ -42,6 +42,19 @@ def health_check():
 @app.get("/logs")
 def get_logs():
     return logs
+
+
+@app.delete("/logs/{log_id}")
+def delete_log(log_id: int):
+    for index, log in enumerate(logs):
+        if log["id"] == log_id:
+            deleted_log = logs.pop(index)
+            return {
+                "message": "log deleted",
+                "log": deleted_log
+            }
+
+    raise HTTPException(status_code=404, detail="Log not found")
 
 
 app.mount("/", StaticFiles(directory="../front", html=True), name="front")
