@@ -1,35 +1,206 @@
+* {
+  box-sizing: border-box;
+}
+
 body {
+  margin: 0;
   font-family: sans-serif;
-  background-color: #f7f7f7;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  background: #f6f7f9;
   color: #333;
 }
 
 .container {
-  width: 90%;
-  max-width: 1000px;
-  margin: 40px auto;
-  background-color: #fff;
-  padding: 24px;
-  border-radius: 8px;
+  width: min(92%, 64rem);
+  margin: 2.5rem auto;
+  padding: 1.5rem;
+  background: #fff;
+  border-radius: 0.75rem;
 }
 
 h1 {
-  margin-bottom: 24px;
+  margin: 0 0 1.5rem;
+  font-size: 1.6rem;
+}
+
+.toolbar {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 1rem;
+}
+
+button {
+  border: none;
+  border-radius: 0.4rem;
+  padding: 0.5rem 0.9rem;
+  background: #333;
+  color: #fff;
+  font: inherit;
+  cursor: pointer;
+}
+
+button:hover {
+  opacity: 0.8;
+}
+
+.button-secondary {
+  background: #777;
+}
+
+/* =========================
+   テーブル
+========================= */
+
+.table-wrapper {
+  width: 100%;
+  overflow-x: auto;
 }
 
 table {
   width: 100%;
+  min-width: 52rem;
+  table-layout: fixed;
   border-collapse: collapse;
-  background-color: #fff;
+  background: #fff;
 }
 
 th,
 td {
-  border: 1px solid #ddd;
-  padding: 10px;
+  padding: 0.7rem 0.6rem;
+  border-bottom: 0.0625rem solid #ddd;
   text-align: left;
+  vertical-align: top;
 }
 
 th {
-  background-color: #f0f0f0;
+  background: #f0f2f5;
+  font-weight: bold;
+  white-space: nowrap;
+}
+
+th:nth-child(1),
+td:nth-child(1) {
+  width: 6%;
+}
+
+th:nth-child(2),
+td:nth-child(2) {
+  width: 14%;
+}
+
+th:nth-child(3),
+td:nth-child(3) {
+  width: 14%;
+}
+
+th:nth-child(4),
+td:nth-child(4) {
+  width: 34%;
+  overflow-wrap: anywhere;
+}
+
+th:nth-child(5),
+td:nth-child(5) {
+  width: 12%;
+}
+
+th:nth-child(6),
+td:nth-child(6) {
+  width: 10%;
+}
+
+th:nth-child(7),
+td:nth-child(7) {
+  width: 10%;
+}
+
+td button {
+  padding: 0.35rem 0.7rem;
+  white-space: nowrap;
+}
+
+/* =========================
+   ダイアログ
+========================= */
+
+.modal {
+  width: min(92vw, 34rem);
+  max-height: 88dvh;
+  padding: 0;
+  border: none;
+  border-radius: 0.75rem;
+  overflow: hidden;
+  background: #fff;
+  color: inherit;
+}
+
+.modal::backdrop {
+  background: rgba(0, 0, 0, 0.35);
+}
+
+.modal-content {
+  display: flex;
+  flex-direction: column;
+  max-height: 88dvh;
+}
+
+.modal-header {
+  padding: 1rem 1.25rem 0.75rem;
+  border-bottom: 0.0625rem solid #eee;
+}
+
+.modal-header h2 {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.modal-body {
+  padding: 1rem 1.25rem;
+  overflow-y: auto;
+}
+
+.form-field {
+  margin-bottom: 0.9rem;
+}
+
+.form-field label {
+  display: block;
+  margin-bottom: 0.3rem;
+  font-size: 0.9rem;
+  font-weight: bold;
+}
+
+.form-field input,
+.form-field textarea,
+.form-field select {
+  width: 100%;
+  padding: 0.5rem 0.6rem;
+  border: 0.0625rem solid #ccc;
+  border-radius: 0.4rem;
+  font: inherit;
+  background: #fff;
+}
+
+.form-field textarea {
+  min-height: 5rem;
+  resize: vertical;
+}
+
+.modal-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  padding: 0.9rem 1.25rem 1rem;
+  border-top: 0.0625rem solid #eee;
+  background: #fff;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 0.0625rem;
+  height: 0.0625rem;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
 }
