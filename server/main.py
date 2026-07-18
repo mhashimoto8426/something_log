@@ -22,6 +22,14 @@ class LogCreate(BaseModel):
     logged_date: str
 
 
+class LogUpdate(BaseModel):
+    category: str
+    content: str
+    status: str
+    importance: int
+    logged_date: str
+
+
 # =========================
 # 仮データ
 # =========================
@@ -92,6 +100,30 @@ def create_log(log: LogCreate):
     logs.append(new_log)
 
     return new_log
+
+
+# =========================
+# 更新処理
+# =========================
+
+@app.put("/logs/{log_id}")
+def update_log(log_id: int, log: LogUpdate):
+    for index, current_log in enumerate(logs):
+        if current_log["id"] == log_id:
+            updated_log = {
+                "id": log_id,
+                "category": log.category,
+                "content": log.content,
+                "status": log.status,
+                "importance": log.importance,
+                "logged_date": log.logged_date,
+            }
+
+            logs[index] = updated_log
+
+            return updated_log
+
+    raise HTTPException(status_code=404, detail="Log not found")
 
 
 # =========================
