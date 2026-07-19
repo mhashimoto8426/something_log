@@ -1,54 +1,37 @@
 const API_BASE_URL = "http://127.0.0.1:8000";
 
-let currentLogs = [];
-let editingLogId = null;
+let currentTodos = [];
+let editingTodoId = null;
 
 
 // =========================
 // 表示処理
 // =========================
 
-async function fetchLogs() {
-  const response = await fetch(`${API_BASE_URL}/logs`);
+async function fetchTodos() {
+  const response = await fetch(`${API_BASE_URL}/todos`);
 
   if (!response.ok) {
     alert("一覧取得に失敗しました");
     return;
   }
 
-  currentLogs = await response.json();
+  currentTodos = await response.json();
 
-  const logList = document.getElementById("log-list");
-  logList.innerHTML = "";
+  const todoList = document.getElementById("todo-list");
+  todoList.innerHTML = "";
 
-  currentLogs.forEach((log) => {
+  currentTodos.forEach((todo) => {
     const row = document.createElement("tr");
 
-    row.appendChild(createTableCell(log.id));
-    row.appendChild(createTableCell(log.logged_date));
-    row.appendChild(createTableCell(log.category));
-    row.appendChild(createTableCell(log.content));
-    row.appendChild(createTableCell(log.status));
-    row.appendChild(createTableCell(log.importance));
+    row.appendChild(createTableCell(todo.task));
+    row.appendChild(createTableCell(todo.due_date || "未設定"));
+    row.appendChild(createTableCell(todo.category || "未設定"));
+    row.appendChild(createTableCell(getPriorityLabel(todo.priority)));
+    row.appendChild(createTableCell(getStatusLabel(todo.status)));
+    row.appendChild(createActionCell(todo.id));
 
-    const actionCell = document.createElement("td");
-    actionCell.classList.add("action-buttons");
-
-    const editButton = document.createElement("button");
-    editButton.type = "button";
-    editButton.textContent = "更新";
-    editButton.addEventListener("click", () => openEditModal(log.id));
-
-    const deleteButton = document.createElement("button");
-    deleteButton.type = "button";
-    deleteButton.textContent = "削除";
-    deleteButton.addEventListener("click", () => deleteLog(log.id));
-
-    actionCell.appendChild(editButton);
-    actionCell.appendChild(deleteButton);
-
-    row.appendChild(actionCell);
-    logList.appendChild(row);
+    todoList.appendChild(row);
   });
 }
 
@@ -58,75 +41,124 @@ function createTableCell(text) {
   return cell;
 }
 
+function createActionCell(todoId) {
+  const cell = document.createElement("td");
+  const buttonGroup = document.createElement("div");
+
+  buttonGroup.classList.add("action-buttons");
+
+  const updateButton = document.createElement("button");
+  updateButton.type = "button";
+  updateButton.textContent = "更新";
+  updateButton.classList.add("table-button", "update-button");
+  updateButton.addEventListener("click", () => openEditModal(todoId));
+
+  const deleteButton = document.createElement("button");
+  deleteButton.type = "button";
+  deleteButton.textContent = "削除";
+  deleteButton.classList.add("table-button", "delete-button");
+  deleteButton.addEventListener("click", () => deleteTodo(todoId));
+
+  buttonGroup.appendChild(updateButton);
+  buttonGroup.appendChild(deleteButton);
+  cell.appendChild(buttonGroup);
+
+  return cell;
+}
+
+function getPriorityLabel(priority) {
+  const priorityLabels = {
+    high: "高",
+    medium: "中",
+    low: "低",
+  };
+
+  return priorityLabels[priority] || priority;
+}
+
+function getStatusLabel(status) {
+  const statusLabels = {
+    todo: "未着手",
+    doing: "進行中",
+    done: "完了",
+  };
+
+  return statusLabels[status] || status;
+}
+
 
 // =========================
 // 追加・更新 共通フォーム
 // =========================
 
-const logModal = document.getElementById("log-modal");
-const logForm = document.getElementById("log-form");
+const todoModal = document.getElementById("todo-modal");
+const todoForm = document.getElementById("todo-form");
 const modalTitle = document.getElementById("modal-title");
-const submitLogButton = document.getElementById("submit-log-button");
+const submitTodoButton = document.getElementById("submit-todo-button");
 const openAddModalButton = document.getElementById("open-add-modal-button");
 const closeModalButton = document.getElementById("close-modal-button");
 
 function openAddModal() {
-  editingLogId = null;
+  editingTodoId = null;
 
-  logForm.reset();
-  document.getElementById("importance").value = 3;
+  todoForm.reset();
+  document.getElementById("priority").value = "medium";
+  document.getElementById("status").value = "todo";
 
-  modalTitle.textContent = "ログ追加";
-  submitLogButton.textContent = "追加する";
+  modalTitle.textContent = "タスク追加";
+  submitTodoButton.textContent = "追加する";
 
-  logModal.showModal();
+  todoModal.showModal();
 }
 
-function openEditModal(logId) {
-  const targetLog = currentLogs.find((log) => log.id === logId);
+function openEditModal(todoId) {
+  const targetTodo = currentTodos.find((todo) => todo.id === todoId);
 
-  if (!targetLog) {
+  if (!targetTodo) {
     alert("更新対象が見つかりません");
     return;
   }
 
-  editingLogId = logId;
+  editingTodoId = todoId;
 
-  document.getElementById("logged-date").value = targetLog.logged_date;
-  document.getElementById("category").value = targetLog.category;
-  document.getElementById("content").value = targetLog.content;
-  document.getElementById("status").value = targetLog.status;
-  document.getElementById("importance").value = targetLog.importance;
+  document.getElementById("task").value = targetTodo.task;
+  document.getElementById("due-date").value = targetTodo.due_date || "";
+  document.getElementById("category").value = targetTodo.category || "";
+  document.getElementById("priority").value = targetTodo.priority;
+  document.getElementById("status").value = targetTodo.status;
 
-  modalTitle.textContent = "ログ更新";
-  submitLogButton.textContent = "更新する";
+  modalTitle.textContent = "タスク更新";
+  submitTodoButton.textContent = "更新する";
 
-  logModal.showModal();
+  todoModal.showModal();
 }
 
 function closeModal() {
-  logModal.close();
-  logForm.reset();
-  editingLogId = null;
+  todoModal.close();
+  todoForm.reset();
+  editingTodoId = null;
 }
 
 function getFormValues() {
+  const dueDate = document.getElementById("due-date").value;
+  const category = document.getElementById("category").value.trim();
+
   return {
-    logged_date: document.getElementById("logged-date").value,
-    category: document.getElementById("category").value,
-    content: document.getElementById("content").value,
+    task: document.getElementById("task").value.trim(),
+    due_date: dueDate || null,
+    category: category || null,
+    priority: document.getElementById("priority").value,
     status: document.getElementById("status").value,
-    importance: Number(document.getElementById("importance").value),
   };
 }
 
-async function submitLog(event) {
+async function submitTodo(event) {
   event.preventDefault();
 
-  if (editingLogId === null) {
-    await addLog();
+  if (editingTodoId === null) {
+    await addTodo();
   } else {
-    await updateLog();
+    await updateTodo();
   }
 }
 
@@ -135,15 +167,15 @@ async function submitLog(event) {
 // 追加処理
 // =========================
 
-async function addLog() {
-  const newLog = getFormValues();
+async function addTodo() {
+  const newTodo = getFormValues();
 
-  const response = await fetch(`${API_BASE_URL}/logs`, {
+  const response = await fetch(`${API_BASE_URL}/todos`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify(newLog),
+    body: JSON.stringify(newTodo),
   });
 
   if (!response.ok) {
@@ -152,7 +184,7 @@ async function addLog() {
   }
 
   closeModal();
-  await fetchLogs();
+  await fetchTodos();
 }
 
 
@@ -160,15 +192,15 @@ async function addLog() {
 // 更新処理
 // =========================
 
-async function updateLog() {
-  const updatedLog = getFormValues();
+async function updateTodo() {
+  const updatedTodo = getFormValues();
 
-  const response = await fetch(`${API_BASE_URL}/logs/${editingLogId}`, {
+  const response = await fetch(`${API_BASE_URL}/todos/${editingTodoId}`, {
     method: "PUT",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify(updatedLog),
+    body: JSON.stringify(updatedTodo),
   });
 
   if (!response.ok) {
@@ -177,7 +209,7 @@ async function updateLog() {
   }
 
   closeModal();
-  await fetchLogs();
+  await fetchTodos();
 }
 
 
@@ -185,14 +217,14 @@ async function updateLog() {
 // 削除処理
 // =========================
 
-async function deleteLog(logId) {
-  const isConfirmed = confirm("このログを削除しますか？");
+async function deleteTodo(todoId) {
+  const isConfirmed = confirm("このタスクを削除しますか？");
 
   if (!isConfirmed) {
     return;
   }
 
-  const response = await fetch(`${API_BASE_URL}/logs/${logId}`, {
+  const response = await fetch(`${API_BASE_URL}/todos/${todoId}`, {
     method: "DELETE",
   });
 
@@ -201,7 +233,7 @@ async function deleteLog(logId) {
     return;
   }
 
-  await fetchLogs();
+  await fetchTodos();
 }
 
 
@@ -211,11 +243,11 @@ async function deleteLog(logId) {
 
 openAddModalButton.addEventListener("click", openAddModal);
 closeModalButton.addEventListener("click", closeModal);
-logForm.addEventListener("submit", submitLog);
+todoForm.addEventListener("submit", submitTodo);
 
 
 // =========================
 // 初期表示
 // =========================
 
-fetchLogs();
+fetchTodos();

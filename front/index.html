@@ -2,76 +2,83 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>Something Log</title>
+  <title>TODOリスト</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <main class="container">
-    <h1>なんでも記録する</h1>
+    <header class="page-header">
+      <div>
+        <h1>TODOリスト</h1>
+      </div>
 
-    <div class="toolbar">
-      <button type="button" id="open-add-modal-button">追加</button>
-    </div>
+      <button type="button" id="open-add-modal-button" class="primary-button">
+        タスク追加
+      </button>
+    </header>
 
     <div class="table-wrapper">
       <table>
-        <caption class="visually-hidden">ログ一覧</caption>
+        <caption class="visually-hidden">TODO一覧</caption>
         <thead>
           <tr>
-            <th>ID</th>
-            <th>日付</th>
+            <th>タスク</th>
+            <th>期限日</th>
             <th>カテゴリ</th>
-            <th>記録内容</th>
+            <th>優先度</th>
             <th>ステータス</th>
-            <th>重要度</th>
             <th>操作</th>
           </tr>
         </thead>
-        <tbody id="log-list"></tbody>
+        <tbody id="todo-list"></tbody>
       </table>
     </div>
   </main>
 
-  <dialog id="log-modal" class="modal">
-    <form id="log-form" class="modal-content">
+  <dialog id="todo-modal" class="modal">
+    <form id="todo-form" class="modal-content">
       <div class="modal-header">
-        <h2 id="modal-title">ログ追加</h2>
+        <h2 id="modal-title">タスク追加</h2>
       </div>
 
       <div class="modal-body">
         <div class="form-field">
-          <label for="logged-date">日付</label>
-          <input type="date" id="logged-date" required>
+          <label for="task">タスク</label>
+          <textarea id="task" required></textarea>
+        </div>
+
+        <div class="form-field">
+          <label for="due-date">期限日</label>
+          <input type="date" id="due-date">
         </div>
 
         <div class="form-field">
           <label for="category">カテゴリ</label>
-          <input type="text" id="category" required>
+          <input type="text" id="category" placeholder="例：仕事、学習、生活">
         </div>
 
         <div class="form-field">
-          <label for="content">記録内容</label>
-          <textarea id="content" required></textarea>
+          <label for="priority">優先度</label>
+          <select id="priority" required>
+            <option value="low">低</option>
+            <option value="medium" selected>中</option>
+            <option value="high">高</option>
+          </select>
         </div>
 
         <div class="form-field">
           <label for="status">ステータス</label>
           <select id="status" required>
-            <option value="todo">todo</option>
-            <option value="doing">doing</option>
-            <option value="done">done</option>
+            <option value="todo">未着手</option>
+            <option value="doing">進行中</option>
+            <option value="done">完了</option>
           </select>
-        </div>
-
-        <div class="form-field">
-          <label for="importance">重要度</label>
-          <input type="number" id="importance" min="1" max="5" value="3" required>
         </div>
       </div>
 
       <div class="modal-buttons">
-        <button type="submit" id="submit-log-button">追加する</button>
-        <button type="button" id="close-modal-button" class="button-secondary">キャンセル</button>
+        <button type="submit" id="submit-todo-button" class="primary-button">追加する</button>
+        <button type="button" id="close-modal-button" class="secondary-button">キャンセル</button>
       </div>
     </form>
   </dialog>

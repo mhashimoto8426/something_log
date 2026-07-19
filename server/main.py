@@ -14,50 +14,50 @@ app = FastAPI()
 # リクエストボディ定義
 # =========================
 
-class LogCreate(BaseModel):
-    category: str
-    content: str
+class TodoCreate(BaseModel):
+    task: str
+    due_date: str | None = None
+    category: str | None = None
+    priority: str
     status: str
-    importance: int
-    logged_date: str
 
 
-class LogUpdate(BaseModel):
-    category: str
-    content: str
+class TodoUpdate(BaseModel):
+    task: str
+    due_date: str | None = None
+    category: str | None = None
+    priority: str
     status: str
-    importance: int
-    logged_date: str
 
 
 # =========================
 # 仮データ
 # =========================
 
-logs = [
+todos = [
     {
         "id": 1,
-        "category": "study",
-        "content": "Pythonのインストール、仮想環境作成、FastAPI起動まで行った",
-        "status": "done",
-        "importance": 3,
-        "logged_date": "2026-05-17"
+        "task": "Pythonの環境構築を行う",
+        "due_date": "2026-05-17",
+        "category": "学習",
+        "priority": "high",
+        "status": "done"
     },
     {
         "id": 2,
-        "category": "document",
-        "content": "Something LogアプリのREADMEを作成した",
-        "status": "done",
-        "importance": 2,
-        "logged_date": "2026-05-17"
+        "task": "READMEを作成する",
+        "due_date": "2026-05-18",
+        "category": "ドキュメント",
+        "priority": "medium",
+        "status": "done"
     },
     {
         "id": 3,
-        "category": "backend",
-        "content": "GET /logs でログ一覧を返すAPIを作成した",
-        "status": "doing",
-        "importance": 3,
-        "logged_date": "2026-05-18"
+        "task": "TODO一覧表示APIを作成する",
+        "due_date": "2026-05-19",
+        "category": "バックエンド",
+        "priority": "medium",
+        "status": "doing"
     }
 ]
 
@@ -75,72 +75,72 @@ def health_check():
 # 表示処理
 # =========================
 
-@app.get("/logs")
-def get_logs():
-    return logs
+@app.get("/todos")
+def get_todos():
+    return todos
 
 
 # =========================
 # 追加処理
 # =========================
 
-@app.post("/logs")
-def create_log(log: LogCreate):
-    new_id = max((item["id"] for item in logs), default=0) + 1
+@app.post("/todos")
+def create_todo(todo: TodoCreate):
+    new_id = max((item["id"] for item in todos), default=0) + 1
 
-    new_log = {
+    new_todo = {
         "id": new_id,
-        "category": log.category,
-        "content": log.content,
-        "status": log.status,
-        "importance": log.importance,
-        "logged_date": log.logged_date,
+        "task": todo.task,
+        "due_date": todo.due_date,
+        "category": todo.category,
+        "priority": todo.priority,
+        "status": todo.status,
     }
 
-    logs.append(new_log)
+    todos.append(new_todo)
 
-    return new_log
+    return new_todo
 
 
 # =========================
 # 更新処理
 # =========================
 
-@app.put("/logs/{log_id}")
-def update_log(log_id: int, log: LogUpdate):
-    for index, current_log in enumerate(logs):
-        if current_log["id"] == log_id:
-            updated_log = {
-                "id": log_id,
-                "category": log.category,
-                "content": log.content,
-                "status": log.status,
-                "importance": log.importance,
-                "logged_date": log.logged_date,
+@app.put("/todos/{todo_id}")
+def update_todo(todo_id: int, todo: TodoUpdate):
+    for index, current_todo in enumerate(todos):
+        if current_todo["id"] == todo_id:
+            updated_todo = {
+                "id": todo_id,
+                "task": todo.task,
+                "due_date": todo.due_date,
+                "category": todo.category,
+                "priority": todo.priority,
+                "status": todo.status,
             }
 
-            logs[index] = updated_log
+            todos[index] = updated_todo
 
-            return updated_log
+            return updated_todo
 
-    raise HTTPException(status_code=404, detail="Log not found")
+    raise HTTPException(status_code=404, detail="Todo not found")
 
 
 # =========================
 # 削除処理
 # =========================
 
-@app.delete("/logs/{log_id}")
-def delete_log(log_id: int):
-    for index, log in enumerate(logs):
-        if log["id"] == log_id:
-            deleted_log = logs.pop(index)
+@app.delete("/todos/{todo_id}")
+def delete_todo(todo_id: int):
+    for index, todo in enumerate(todos):
+        if todo["id"] == todo_id:
+            deleted_todo = todos.pop(index)
             return {
-                "message": "log deleted",
-                "log": deleted_log
+                "message": "todo deleted",
+                "todo": deleted_todo
             }
 
-    raise HTTPException(status_code=404, detail="Log not found")
+    raise HTTPException(status_code=404, detail="Todo not found")
 
 
 # =========================
