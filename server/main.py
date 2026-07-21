@@ -1,13 +1,55 @@
-from fastapi import FastAPI, HTTPException
+from contextlib import asynccontextmanager
+
+from fastapi import Depends, FastAPI, HTTPException
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
+from sqlmodel import Field, Session, SQLModel, create_engine, select
+
+
+# =========================
+# データベース設定
+# =========================
+
+sqlite_file_name = "todo.db"
+sqlite_url = f"sqlite:///{sqlite_file_name}"
+
+connect_args = {"check_same_thread": False}
+engine = create_engine(sqlite_url, connect_args=connect_args)
+
+
+def create_db_and_tables():
+    SQLModel.metadata.create_all(engine)
+
+
+def get_session():
+    with Session(engine) as session:
+        yield session
 
 
 # =========================
 # FastAPIアプリ本体
 # =========================
 
-app = FastAPI()
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    create_db_and_tables()
+    yield
+
+
+app = FastAPI(lifespan=lifespan)
+
+
+# =========================
+# テーブル定義
+# =========================
+
+class Todo(SQLModel, table=True):
+    id: int | None = Field(default=None, primary_key=True)
+    task: str
+    due_date: str | None = None
+    category: str | None = None
+    priority: str
+    status: str
 
 
 # =========================
@@ -31,38 +73,6 @@ class TodoUpdate(BaseModel):
 
 
 # =========================
-# 仮データ
-# =========================
-
-todos = [
-    {
-        "id": 1,
-        "task": "Pythonの環境構築を行う",
-        "due_date": "2026-05-17",
-        "category": "学習",
-        "priority": "high",
-        "status": "done"
-    },
-    {
-        "id": 2,
-        "task": "READMEを作成する",
-        "due_date": "2026-05-18",
-        "category": "ドキュメント",
-        "priority": "medium",
-        "status": "done"
-    },
-    {
-        "id": 3,
-        "task": "TODO一覧表示APIを作成する",
-        "due_date": "2026-05-19",
-        "category": "バックエンド",
-        "priority": "medium",
-        "status": "doing"
-    }
-]
-
-
-# =========================
 # ヘルスチェック
 # =========================
 
@@ -76,7 +86,8 @@ def health_check():
 # =========================
 
 @app.get("/todos")
-def get_todos():
+def get_todos(session: Session = Depends(get_session)):
+    todos = session.exec(select(Todo)).all()
     return todos
 
 
@@ -85,19 +96,18 @@ def get_todos():
 # =========================
 
 @app.post("/todos")
-def create_todo(todo: TodoCreate):
-    new_id = max((item["id"] for item in todos), default=0) + 1
+def create_todo(todo: TodoCreate, session: Session = Depends(get_session)):
+    new_todo = Todo(
+        task=todo.task,
+        due_date=todo.due_date,
+        category=todo.category,
+        priority=todo.priority,
+        status=todo.status,
+    )
 
-    new_todo = {
-        "id": new_id,
-        "task": todo.task,
-        "due_date": todo.due_date,
-        "category": todo.category,
-        "priority": todo.priority,
-        "status": todo.status,
-    }
-
-    todos.append(new_todo)
+    session.add(new_todo)
+    session.commit()
+    session.refresh(new_todo)
 
     return new_todo
 
@@ -107,23 +117,27 @@ def create_todo(todo: TodoCreate):
 # =========================
 
 @app.put("/todos/{todo_id}")
-def update_todo(todo_id: int, todo: TodoUpdate):
-    for index, current_todo in enumerate(todos):
-        if current_todo["id"] == todo_id:
-            updated_todo = {
-                "id": todo_id,
-                "task": todo.task,
-                "due_date": todo.due_date,
-                "category": todo.category,
-                "priority": todo.priority,
-                "status": todo.status,
-            }
+def update_todo(
+    todo_id: int,
+    todo: TodoUpdate,
+    session: Session = Depends(get_session),
+):
+    target_todo = session.get(Todo, todo_id)
 
-            todos[index] = updated_todo
+    if target_todo is None:
+        raise HTTPException(status_code=404, detail="Todo not found")
 
-            return updated_todo
+    target_todo.task = todo.task
+    target_todo.due_date = todo.due_date
+    target_todo.category = todo.category
+    target_todo.priority = todo.priority
+    target_todo.status = todo.status
 
-    raise HTTPException(status_code=404, detail="Todo not found")
+    session.add(target_todo)
+    session.commit()
+    session.refresh(target_todo)
+
+    return target_todo
 
 
 # =========================
@@ -131,16 +145,19 @@ def update_todo(todo_id: int, todo: TodoUpdate):
 # =========================
 
 @app.delete("/todos/{todo_id}")
-def delete_todo(todo_id: int):
-    for index, todo in enumerate(todos):
-        if todo["id"] == todo_id:
-            deleted_todo = todos.pop(index)
-            return {
-                "message": "todo deleted",
-                "todo": deleted_todo
-            }
+def delete_todo(todo_id: int, session: Session = Depends(get_session)):
+    target_todo = session.get(Todo, todo_id)
 
-    raise HTTPException(status_code=404, detail="Todo not found")
+    if target_todo is None:
+        raise HTTPException(status_code=404, detail="Todo not found")
+
+    session.delete(target_todo)
+    session.commit()
+
+    return {
+        "message": "todo deleted",
+        "todo": target_todo,
+    }
 
 
 # =========================
