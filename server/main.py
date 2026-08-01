@@ -1,7 +1,10 @@
 from contextlib import asynccontextmanager
+from io import BytesIO
 
 from fastapi import Depends, FastAPI, HTTPException
+from fastapi.responses import StreamingResponse
 from fastapi.staticfiles import StaticFiles
+from openpyxl import Workbook
 from pydantic import BaseModel
 from sqlmodel import Field, Session, SQLModel, create_engine, select
 
@@ -158,6 +161,68 @@ def delete_todo(todo_id: int, session: Session = Depends(get_session)):
         "message": "todo deleted",
         "todo": target_todo,
     }
+
+
+# =========================
+# Excel出力用 変換
+# =========================
+
+def convert_priority_label(priority: str):
+    priority_labels = {
+        "high": "高",
+        "medium": "中",
+        "low": "低",
+    }
+
+    return priority_labels.get(priority, priority)
+
+
+def convert_status_label(status: str):
+    status_labels = {
+        "todo": "未着手",
+        "doing": "進行中",
+        "done": "完了",
+    }
+
+    return status_labels.get(status, status)
+
+
+# =========================
+# Excel出力処理
+# =========================
+
+@app.get("/todos/export/excel")
+def export_todos_excel(session: Session = Depends(get_session)):
+    todos = session.exec(select(Todo)).all()
+
+    workbook = Workbook()
+    worksheet = workbook.active
+    worksheet.title = "TODO一覧"
+
+    headers = ["ID", "タスク", "期限日", "カテゴリ", "優先度", "ステータス"]
+    worksheet.append(headers)
+
+    for todo in todos:
+        worksheet.append([
+            todo.id,
+            todo.task,
+            todo.due_date or "",
+            todo.category or "",
+            convert_priority_label(todo.priority),
+            convert_status_label(todo.status),
+        ])
+
+    excel_file = BytesIO()
+    workbook.save(excel_file)
+    excel_file.seek(0)
+
+    return StreamingResponse(
+        excel_file,
+        media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        headers={
+            "Content-Disposition": 'attachment; filename="todo_list.xlsx"'
+        },
+    )
 
 
 # =========================

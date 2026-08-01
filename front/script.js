@@ -97,6 +97,7 @@ const modalTitle = document.getElementById("modal-title");
 const submitTodoButton = document.getElementById("submit-todo-button");
 const openAddModalButton = document.getElementById("open-add-modal-button");
 const closeModalButton = document.getElementById("close-modal-button");
+const exportExcelButton = document.getElementById("export-excel-button");
 
 function openAddModal() {
   editingTodoId = null;
@@ -238,12 +239,22 @@ async function deleteTodo(todoId) {
 
 
 // =========================
+// Excel出力処理
+// =========================
+
+function exportExcel() {
+  window.location.href = `${API_BASE_URL}/todos/export/excel`;
+}
+
+
+// =========================
 // イベント設定
 // =========================
 
 openAddModalButton.addEventListener("click", openAddModal);
 closeModalButton.addEventListener("click", closeModal);
 todoForm.addEventListener("submit", submitTodo);
+exportExcelButton.addEventListener("click", exportExcel);
 
 
 // =========================
