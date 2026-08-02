@@ -1,0 +1,317 @@
+:root {
+  --page-bg: #f6f7f9;
+  --surface: #ffffff;
+  --surface-muted: #f5f6f8;
+  --surface-hover: #fafafa;
+
+  --text-main: #222222;
+  --text-sub: #666666;
+
+  --border: #e5e7eb;
+  --border-strong: #d7dbe0;
+  --column-divider: #c9ced6;
+
+  --primary: #222222;
+
+  --danger: #9f2a2a;
+  --danger-bg: #f8eeee;
+  --danger-border: #e5bcbc;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, sans-serif;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  background: var(--page-bg);
+  color: var(--text-main);
+}
+
+.container {
+  width: min(92%, 68rem);
+  margin: 2.5rem auto;
+  padding: 1.5rem;
+  background: var(--surface);
+  border-radius: 1rem;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+h1 {
+  margin: 0;
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  line-height: 1.2;
+}
+
+.page-description {
+  margin: 0.4rem 0 0;
+  color: var(--text-sub);
+}
+
+button {
+  border: none;
+  border-radius: 0.55rem;
+  font: inherit;
+  cursor: pointer;
+}
+
+button:hover {
+  opacity: 0.9;
+}
+
+button:focus-visible {
+  outline: 0.15rem solid #9ca3af;
+  outline-offset: 0.15rem;
+}
+
+.primary-button {
+  padding: 0.55rem 0.9rem;
+  background: var(--primary);
+  color: #ffffff;
+}
+
+.secondary-button {
+  padding: 0.55rem 0.9rem;
+  background: #e8e8e8;
+  color: var(--text-main);
+}
+
+/* =========================
+   テーブル
+========================= */
+
+.table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  border: 0.0625rem solid var(--border);
+  border-radius: 0.9rem;
+  background: var(--surface);
+}
+
+table {
+  width: 100%;
+  min-width: 50rem;
+  table-layout: fixed;
+  border-collapse: separate;
+  border-spacing: 0;
+  background: var(--surface);
+}
+
+th,
+td {
+  padding: 0.8rem 0.75rem;
+  border-bottom: 0.0625rem solid var(--border);
+  text-align: left;
+  vertical-align: middle;
+}
+
+th {
+  color: var(--text-sub);
+  font-size: 0.85rem;
+  font-weight: 700;
+  white-space: nowrap;
+  background-color: var(--surface-muted);
+}
+
+td {
+  background-color: var(--surface);
+}
+
+th + th,
+td + td {
+  background-image: radial-gradient(
+    circle,
+    var(--column-divider) 0.055rem,
+    transparent 0.065rem
+  );
+  background-size: 0.0625rem 0.42rem;
+  background-position: left center;
+  background-repeat: repeat-y;
+}
+
+tbody tr:hover td {
+  background-color: var(--surface-hover);
+}
+
+tbody tr:last-child td {
+  border-bottom: none;
+}
+
+th:nth-child(1),
+td:nth-child(1) {
+  width: 38%;
+}
+
+th:nth-child(2),
+td:nth-child(2) {
+  width: 12%;
+  white-space: nowrap;
+}
+
+th:nth-child(3),
+td:nth-child(3) {
+  width: 13%;
+}
+
+th:nth-child(4),
+td:nth-child(4) {
+  width: 10%;
+  white-space: nowrap;
+}
+
+th:nth-child(5),
+td:nth-child(5) {
+  width: 12%;
+  white-space: nowrap;
+}
+
+th:nth-child(6),
+td:nth-child(6) {
+  width: 15%;
+  text-align: center;
+  white-space: nowrap;
+}
+
+td:nth-child(1) {
+  overflow-wrap: anywhere;
+}
+
+.action-buttons {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.table-button {
+  min-inline-size: 3.2rem;
+  padding: 0.38rem 0.7rem;
+  border: 0.0625rem solid var(--border-strong);
+  border-radius: 0.55rem;
+  background: var(--surface);
+  color: var(--text-main);
+  font-size: 0.9rem;
+}
+
+.update-button:hover {
+  background: var(--surface-muted);
+}
+
+.delete-button {
+  border-color: var(--danger-border);
+  background: var(--danger-bg);
+  color: var(--danger);
+}
+
+.delete-button:hover {
+  background: #f3dddd;
+}
+
+/* =========================
+   ダイアログ
+========================= */
+
+.modal {
+  width: min(92vw, 32rem);
+  max-height: 88dvh;
+  padding: 0;
+  border: none;
+  border-radius: 1rem;
+  overflow: hidden;
+  background: var(--surface);
+  color: inherit;
+}
+
+.modal::backdrop {
+  background: rgba(0, 0, 0, 0.35);
+}
+
+.modal-content {
+  display: flex;
+  flex-direction: column;
+  max-height: 88dvh;
+}
+
+.modal-header {
+  padding: 1rem 1.25rem 0.8rem;
+  border-bottom: 0.0625rem solid var(--border);
+}
+
+.modal-header h2 {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.modal-body {
+  padding: 1rem 1.25rem;
+  overflow-y: auto;
+}
+
+.form-field {
+  margin-bottom: 0.9rem;
+}
+
+.form-field label {
+  display: block;
+  margin-bottom: 0.3rem;
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.form-field input,
+.form-field textarea,
+.form-field select {
+  width: 100%;
+  padding: 0.55rem 0.65rem;
+  border: 0.0625rem solid #cccccc;
+  border-radius: 0.5rem;
+  font: inherit;
+  background: var(--surface);
+}
+
+.form-field textarea {
+  min-height: 6rem;
+  resize: vertical;
+}
+
+.modal-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.6rem;
+  padding: 0.9rem 1.25rem 1rem;
+  border-top: 0.0625rem solid var(--border);
+  background: var(--surface);
+}
+
+/* =========================
+   補助
+========================= */
+
+.visually-hidden {
+  position: absolute;
+  width: 0.0625rem;
+  height: 0.0625rem;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+@media (max-width: 42rem) {
+  .page-header {
+    flex-direction: column;
+  }
+
+  .primary-button {
+    width: 100%;
+  }
+}

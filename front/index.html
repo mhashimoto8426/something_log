@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>TODOリスト</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main class="container">
+    <header class="page-header">
+      <div>
+        <h1>TODOリスト</h1>
+      </div>
+
+      <div>
+        <button type="button" id="open-add-modal-button" class="primary-button">
+          タスク追加
+        </button>
+        <button type="button" id="export-excel-button" class="primary-button">
+          Excelダウンロード
+        </button>
+      </div>
+    </header>
+
+    <div class="table-wrapper">
+      <table>
+        <caption class="visually-hidden">TODO一覧</caption>
+        <thead>
+          <tr>
+            <th>タスク</th>
+            <th>期限日</th>
+            <th>カテゴリ</th>
+            <th>優先度</th>
+            <th>ステータス</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody id="todo-list"></tbody>
+      </table>
+    </div>
+  </main>
+
+  <dialog id="todo-modal" class="modal">
+    <form id="todo-form" class="modal-content">
+      <div class="modal-header">
+        <h2 id="modal-title">タスク追加</h2>
+      </div>
+
+      <div class="modal-body">
+        <div class="form-field">
+          <label for="task">タスク</label>
+          <textarea id="task" required></textarea>
+        </div>
+
+        <div class="form-field">
+          <label for="due-date">期限日</label>
+          <input type="date" id="due-date">
+        </div>
+
+        <div class="form-field">
+          <label for="category">カテゴリ</label>
+          <input type="text" id="category" placeholder="例：仕事、学習、生活">
+        </div>
+
+        <div class="form-field">
+          <label for="priority">優先度</label>
+          <select id="priority" required>
+            <option value="low">低</option>
+            <option value="medium" selected>中</option>
+            <option value="high">高</option>
+          </select>
+        </div>
+
+        <div class="form-field">
+          <label for="status">ステータス</label>
+          <select id="status" required>
+            <option value="todo">未着手</option>
+            <option value="doing">進行中</option>
+            <option value="done">完了</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="modal-buttons">
+        <button type="submit" id="submit-todo-button" class="primary-button">追加する</button>
+        <button type="button" id="close-modal-button" class="secondary-button">キャンセル</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script src="script.js"></script>
+</body>
+</html>
